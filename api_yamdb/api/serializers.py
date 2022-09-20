@@ -5,6 +5,7 @@ from reviews.models import User
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации нового пользователя"""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
@@ -18,17 +19,14 @@ class UserSignupSerializer(serializers.ModelSerializer):
 
 
 class GetTokenSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения токена"""
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class EditForUserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-    )
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-    )
+    """Сериализатор для получения пользователем информации о себе
+    и её редактирования"""
     first_name = serializers.CharField(allow_null=True, allow_blank=True,)
     last_name = serializers.CharField(allow_null=True, allow_blank=True,)
     bio = serializers.CharField(allow_null=True, allow_blank=True,)
@@ -42,6 +40,8 @@ class EditForUserSerializer(serializers.ModelSerializer):
 
 
 class AdminUserEditSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения администратором информации о пользователях
+        и её редактирования"""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
