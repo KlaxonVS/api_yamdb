@@ -8,6 +8,3 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .permissions import IsAdmin
 #from .serializers import
 #from reviews.models import
-
-
-
