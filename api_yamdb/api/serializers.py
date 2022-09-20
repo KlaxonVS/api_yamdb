@@ -24,13 +24,15 @@ class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
 
 
+
 class EditForUserSerializer(serializers.ModelSerializer):
     """Сериализатор для получения пользователем информации о себе
     и её редактирования"""
     first_name = serializers.CharField(allow_null=True, allow_blank=True,)
     last_name = serializers.CharField(allow_null=True, allow_blank=True,)
     bio = serializers.CharField(allow_null=True, allow_blank=True,)
-    role = serializers.ChoiceField(default=User.USER,)
+    role = serializers.ChoiceField(default=User.USER,
+                                   choices=User.ROLE_CHOICES,)
 
     class Meta:
         fields = ('username', 'email', 'first_name',
@@ -51,7 +53,8 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(allow_null=True, allow_blank=True, )
     last_name = serializers.CharField(allow_null=True, allow_blank=True, )
     bio = serializers.CharField(allow_null=True, allow_blank=True,)
-    role = serializers.ChoiceField(default=User.USER,)
+    role = serializers.ChoiceField(default=User.USER,
+                                   choices=User.ROLE_CHOICES,)
 
     class Meta:
         fields = ('username', 'email', 'first_name',

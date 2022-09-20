@@ -5,25 +5,27 @@ from rest_framework import viewsets, mixins, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import IsAdminOrSuperuser
+from .permissions import IsAdmin
 from .serializers import (UserSignupSerializer, GetTokenSerializer,
                           EditForUserSerializer, AdminUserEditSerializer,)
 from reviews.models import User
 
 
-class UserSignupOrTokenViewSet(mixins.CreateModelMixin,):
+class UserSignupOrTokenViewSet(mixins.CreateModelMixin,
+                               viewsets.GenericViewSet,):
     """Вьюсет используемый для регистрации пользователя и получения токена"""
     permission_classes = (permissions.AllowAny,)
 
     def get_serializer_class(self):
         """Определяет необходимый сериализатор в зависимости
         от содержания запроса"""
-        if self.request.data['email'] and self.request.data['username']:
+        if self.request.data.get('email') and self.request.data.get('username'):
             return UserSignupSerializer
         else:
-            if (self.request.data['username']
-                    and self.request.data['confirmation_code']):
+            if (self.request.data.get('username')
+                    and self.request.data.get('confirmation_code')):
                 return GetTokenSerializer
+
 
     def create(self, request, *args, **kwargs):
         """Определяет порядок действий: создание нового пользователя или
@@ -78,4 +80,4 @@ class AdminUserEditViewSet(viewsets.ModelViewSet):
     и редактирования"""
     queryset = User.objects.all()
     serializer_class = AdminUserEditSerializer
-    permission_classes = [IsAdminOrSuperuser, ]
+    permission_classes = [IsAdmin, ]

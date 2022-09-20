@@ -1,16 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .validators import forbidden_username_check
+
 
 class User(AbstractUser):
 
-    SUPERUSER = 0
-    ADMIN = 1
-    MODER = 2
-    USER = 3
+    ADMIN = 0
+    MODER = 1
+    USER = 2
 
     ROLE_CHOICES = (
-        (SUPERUSER, 'superuser'),
         (ADMIN, 'administrator'),
         (MODER, 'moderator'),
         (USER, 'user'),
@@ -22,7 +22,7 @@ class User(AbstractUser):
         default=USER
     )
     bio = models.TextField('Биография', blank=True,)
-    email = models.Email.Field(
+    email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True,
     )
@@ -30,10 +30,19 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=150,
         unique=True,
-        validators=['forbidden_username_check']
+        validators=[forbidden_username_check]
     )
 
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
+
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         ordering = ['id']
