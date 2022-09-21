@@ -6,10 +6,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsAdminOrAuthorOrReadOnly
 from .serializers import (UserSignupSerializer, GetTokenSerializer,
-                          AdminUserEditSerializer,)
-from reviews.models import User
+                          AdminUserEditSerializer, ReviewSerializer)
+from reviews.models import User, Review, Title
 
 
 def send_confirmation_code(user):
@@ -77,3 +77,19 @@ class AdminUserEditViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = AdminUserEditSerializer
     permission_classes = [IsAdmin]
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+
+    permission_classes = [IsAdminOrAuthorOrReadOnly]
+    serializer_class = ReviewSerializer
+
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs['title_id'])
+
+    def get_queryset(self):
+        title = self.get_title()
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, title=self.get_title())
