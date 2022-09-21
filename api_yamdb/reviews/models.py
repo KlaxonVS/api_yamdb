@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .validators import forbidden_username_check
+from .validators import forbidden_username_check, validate_score_range
 
 
 class User(AbstractUser):
@@ -51,3 +51,45 @@ class User(AbstractUser):
         ordering = ['username']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Review(models.Model):
+
+    text = models.TextField(verbose_name='review text')
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    score = models.IntegerField(
+        verbose_name='review score',
+        validators=[validate_score_range]
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
+
+
+class Comments(models.Model):
+
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    text = models.TextField(verbose_name='comment text')
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
