@@ -37,7 +37,7 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         """Проверяет что пользователь модератор"""
-        return self.role == self.MODERATOR
+        return self.role == self.MODER
 
     @property
     def is_admin(self):
