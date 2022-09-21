@@ -8,5 +8,6 @@ def forbidden_username_check(name):
 
 
 def validate_score_range(score):
+    """Запрещает ставить оценку в отзыве не из промежутка (1, 10)"""
     if score not in range(1, 11):
         raise ValidationError('Оценка должна быть целым числом от 1 до 10!')
