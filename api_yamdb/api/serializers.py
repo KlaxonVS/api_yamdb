@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import User
+from reviews.models import User, Review
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -59,3 +59,20 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
         model = User
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
+    title = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='name'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'title',
+                  'author', 'score', 'pub_date')
+        model = Review
