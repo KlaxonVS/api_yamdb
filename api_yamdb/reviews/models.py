@@ -6,18 +6,19 @@ from .validators import forbidden_username_check, validate_score_range
 
 class User(AbstractUser):
 
-    ADMIN = 0
-    MODER = 1
-    USER = 2
+    ADMIN = 'admin'
+    MODER = 'moderator'
+    USER = 'user'
 
     ROLE_CHOICES = (
-        (ADMIN, 'administrator'),
-        (MODER, 'moderator'),
-        (USER, 'user'),
+        (ADMIN, 'Администратор'),
+        (MODER, 'Модератор'),
+        (USER, 'Пользователь'),
     )
 
-    role = models.PositiveSmallIntegerField(
+    role = models.CharField(
         'Роль',
+        max_length=10,
         choices=ROLE_CHOICES,
         default=USER
     )
@@ -35,17 +36,19 @@ class User(AbstractUser):
 
     @property
     def is_moderator(self):
+        """Проверяет что пользователь модератор"""
         return self.role == self.MODERATOR
 
     @property
     def is_admin(self):
+        """Проверяет что пользователь администратор"""
         return self.role == self.ADMIN
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     class Meta:
-        ordering = ['id']
+        ordering = ['username']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 

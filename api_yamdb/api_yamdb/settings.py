@@ -10,7 +10,7 @@ SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -90,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
