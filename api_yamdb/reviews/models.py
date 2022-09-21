@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .validators import forbidden_username_check
+from .validators import forbidden_username_check, validate_score_range
 
 
 class User(AbstractUser):
@@ -64,7 +64,8 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.IntegerField(
-        verbose_name='review score'
+        verbose_name='review score',
+        validators=[validate_score_range]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
