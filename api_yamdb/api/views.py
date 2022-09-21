@@ -1,14 +1,14 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, mixins, permissions, status
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import IsAdmin
 from .serializers import (UserSignupSerializer, GetTokenSerializer,
-                          EditForUserSerializer, AdminUserEditSerializer,)
+                          AdminUserEditSerializer,)
 from reviews.models import User
 
 
@@ -69,16 +69,6 @@ def get_token(request):
         return Response({'token': str(token)},
                         status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class EditForUserViewSet(mixins.RetrieveModelMixin,
-                         mixins.UpdateModelMixin,
-                         viewsets.GenericViewSet,):
-    """Вьюсет для получения и изменения информации о себе"""
-    serializer_class = EditForUserSerializer
-
-    def get_object(self):
-        return self.request.user
 
 
 class AdminUserEditViewSet(viewsets.ModelViewSet):
