@@ -8,12 +8,12 @@ from .views import (register_or_confirm_code, get_token,
 router_v1 = DefaultRouter()
 router_v1.register('users', AdminUserEditViewSet, basename='users')
 router_v1.register(
-    'titles/<int:title_id>/reviews/<int:review_id>/comments/',
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentsViewSet,
     basename='comments'
 )
 router_v1.register(
-    'titles/<int:title_id>/reviews/',
+    r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
     basename='reviews'
 )
