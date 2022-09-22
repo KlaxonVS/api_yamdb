@@ -1,9 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .validators import (forbidden_username_check,
+from .validators import (validate_username,
                          validate_score_range,
-                         check_title_not_future)
+                         validate_year)
 
 
 class User(AbstractUser):
@@ -33,7 +33,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=150,
         unique=True,
-        validators=[forbidden_username_check]
+        validators=[validate_username]
     )
 
     @property
@@ -102,7 +102,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         verbose_name='Дата выхода',
-        validators=[check_title_not_future]
+        validators=[validate_year]
     )
     description = models.TextField(
         verbose_name='Описание',
