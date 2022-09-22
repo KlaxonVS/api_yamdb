@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import IsAdmin, IsAdminOrAuthorOrReadOnly
-from .serializers import (UserSignupSerializer, GetTokenSerializer,
+from .serializers import (CommentSerializer, UserSignupSerializer, GetTokenSerializer,
                           AdminUserEditSerializer, ReviewSerializer)
 from reviews.models import User, Review, Title
 
@@ -93,3 +93,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
+
+
+class CommentsViewSet(viewsets.ModeliewSet):
+
+    permission_classes = [IsAdminOrAuthorOrReadOnly]
+    serializer = CommentSerializer
+
+    def get_review(self):
+        return get_object_or_404(Review, id=self.kwargs['review_id'])
+
+    def get_queryset(self):
+        review = self.get_review()
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, review=self.get_review())
