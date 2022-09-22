@@ -61,7 +61,7 @@ class Category(models.Model):
         max_length=256
     )
     slug = models.SlugField(
-        rbose_name='Метка',
+        verbose_name='Метка',
         max_length=50,
         unique=True
     )
