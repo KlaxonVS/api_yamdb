@@ -39,7 +39,7 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         """Проверяет что пользователь модератор"""
-        return self.role == self.MODERATOR
+        return self.role == self.MODER
 
     @property
     def is_admin(self):
@@ -156,7 +156,7 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
 
-    text = models.TextField(verbose_name='review text')
+    text = models.TextField(verbose_name='текст отзыва')
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -168,13 +168,18 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.IntegerField(
-        verbose_name='review score',
+        verbose_name='оценка',
         validators=[validate_score_range]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True
     )
+
+    class Meta:
+        ordering = ['title', 'pub_date']
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
 
 
 class Comments(models.Model):
@@ -189,8 +194,13 @@ class Comments(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = models.TextField(verbose_name='comment text')
+    text = models.TextField(verbose_name='текст комментария')
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True
     )
+
+    class Meta:
+        ordering = ['review', 'pub_date']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
