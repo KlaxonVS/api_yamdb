@@ -55,7 +55,7 @@ class User(AbstractUser):
 
 class Review(models.Model):
 
-    text = models.TextField(verbose_name='текст отзыва')
+    text = models.TextField(verbose_name='Текст отзыва')
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -67,7 +67,7 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.IntegerField(
-        verbose_name='оценка',
+        verbose_name='Оценка',
         validators=[validate_score_range]
     )
     pub_date = models.DateTimeField(
@@ -93,7 +93,7 @@ class Comments(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = models.TextField(verbose_name='текст комментария')
+    text = models.TextField(verbose_name='Текст комментария')
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True
