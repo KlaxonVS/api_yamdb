@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import IsAdmin, IsAdminOrAuthorOrReadOnly
-from .serializers import (CommentSerializer, UserSignupSerializer, GetTokenSerializer,
+from .serializers import (CommentSerializer, UserSignupSerializer,
+                          GetTokenSerializer,
                           AdminUserEditSerializer, ReviewSerializer)
 from reviews.models import User, Review, Title
 
@@ -95,7 +96,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=self.get_title())
 
 
-class CommentsViewSet(viewsets.ModeliewSet):
+class CommentsViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdminOrAuthorOrReadOnly]
     serializer = CommentSerializer
