@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from .validators import validate_username
 from reviews.models import Comments, User, Review
 
 
@@ -35,7 +36,8 @@ class EditForUserSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
+        validators=[UniqueValidator(queryset=User.objects.all()),
+                    validate_username],
     )
 
     class Meta:
@@ -52,7 +54,8 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
+        validators=[UniqueValidator(queryset=User.objects.all()),
+                    validate_username],
     )
 
     class Meta:

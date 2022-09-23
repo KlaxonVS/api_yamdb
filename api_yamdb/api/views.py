@@ -1,15 +1,16 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import viewsets, permissions, status, filters
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .permissions import IsAdmin, IsAdminOrAuthorOrReadOnly
 from .serializers import (CommentSerializer, UserSignupSerializer,
-                          GetTokenSerializer,
-                          AdminUserEditSerializer, ReviewSerializer)
+                          GetTokenSerializer, AdminUserEditSerializer,
+                          EditForUserSerializer, ReviewSerializer)
 from reviews.models import User, Review, Title
 
 
@@ -72,12 +73,34 @@ def get_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdminUserEditViewSet(viewsets.ModelViewSet):
+class UserEditViewSet(viewsets.ModelViewSet):
     """Вьюсет для получения списка пользователей, их регистрации
-    и редактирования"""
+    и редактирования, а также для получения пользователем данных о себе и их
+    изменение"""
     queryset = User.objects.all()
     serializer_class = AdminUserEditSerializer
     permission_classes = [IsAdmin]
+    lookup_field = 'username'
+    pagination_class = LimitOffsetPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+
+    @action(methods=['get', 'patch'], detail=False, url_path='me',
+            serializer_class=EditForUserSerializer,
+            permission_classes=[permissions.IsAuthenticated])
+    def user_me_view(self, request):
+        """Метод дающий доступ пользователю к данным о себе и их изменение"""
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(user, data=request.data,
+                                             partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
