@@ -4,7 +4,7 @@ from django.utils import timezone
 
 def validate_username(name):
     """Делает невозможным использовать <<me>> как имя"""
-    if name == 'me':
+    if name.lower() == 'me':
         raise ValidationError('Нельзя использовать "me" как username')
 
 
