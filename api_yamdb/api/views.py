@@ -7,7 +7,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import IsAdmin, IsAdminOrAuthorOrReadOnly
+from .permissions import IsAdmin, IsAdminModerAuthorOrReadOnly
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer)
@@ -105,8 +105,9 @@ class UserEditViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
 
-    permission_classes = [IsAdminOrAuthorOrReadOnly]
+    permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer_class = ReviewSerializer
+    pagination_class = LimitOffsetPagination
 
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -121,8 +122,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
 
-    permission_classes = [IsAdminOrAuthorOrReadOnly]
+    permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer = CommentSerializer
+    pagination_class = LimitOffsetPagination
 
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
@@ -132,7 +134,4 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return review.comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            review=self.get_review(),
-        )
+        serializer.save(author=self.request.user, review=self.get_review())
