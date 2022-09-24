@@ -70,11 +70,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username'
     )
+    score = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'text',
                   'author', 'score', 'pub_date')
         model = Review
+
+    def validate_score(self, value):
+        if value not in range(1, 11):
+            raise serializers.ValidationError(
+                'Оценка должны быть в промежутке от 1 до 10!'
+            )
 
 
 class CommentSerializer(serializers.ModelSerializer):
