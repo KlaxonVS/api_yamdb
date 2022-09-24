@@ -123,7 +123,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdminModerAuthorOrReadOnly]
-    serializer = CommentSerializer
+    serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
 
     def get_review(self):
