@@ -11,7 +11,7 @@ class IsAdmin(permissions.BasePermission):
 
 class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
     """
-    Позволяет редактировать объект только админинстратору, модератору и автору.
+    Позволяет редактировать объект только администратору, модератору и автору.
     Запрещает отправлять POST-запросы не аутентифицированным пользователям.
     """
 
@@ -20,7 +20,7 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
             return True
 
         if request.method == 'POST':
-            return bool(request.user and request.user.is_authenticated)
+            return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -29,3 +29,20 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
         return (obj.author == request.user
                 or request.user.is_moderator
                 or request.user.is_admin)
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Всем пользователям разрешается делать безопасные запросы, небезопасные
+    запросы - только администратору
+    """
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_admin
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_admin

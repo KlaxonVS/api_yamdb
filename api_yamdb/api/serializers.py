@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from .validators import validate_username
-from reviews.models import Comments, User, Review
+from reviews.models import Comments, User, Review, Title, Genre, Category
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -86,3 +86,24 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comments
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category', 'rating')
+        read_only_fields = ('rating', )
+        model = Title
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category

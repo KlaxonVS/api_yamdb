@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import (validate_username,
@@ -106,25 +107,27 @@ class Title(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание',
+        max_length=400,
         null=True,
         blank=True
     )
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
-        through='GenreTitle'
+        through='GenreTitle',
+        blank=False
     )
     category = models.ForeignKey(
         Category,
         verbose_name='Категория',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='titles',
-        null=True
+        blank=False
     )
-    rating = models.IntegerField(
+    rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        default=0,
         verbose_name='Рейтинг',
-        null=True,
-        default=None
     )
 
     def __str__(self):
@@ -156,7 +159,10 @@ class GenreTitle(models.Model):
 
 class Review(models.Model):
 
-    text = models.TextField(verbose_name='Текст отзыва')
+    text = models.TextField(
+        verbose_name='Текст отзыва',
+        max_length=400
+    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -167,9 +173,10 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(
+    score = models.PositiveIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        default=0,
         verbose_name='Оценка',
-        validators=[validate_score_range]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -194,7 +201,10 @@ class Comments(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    text = models.TextField(verbose_name='Текст комментария')
+    text = models.TextField(
+        verbose_name='Текст комментария',
+        max_length=400
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True
