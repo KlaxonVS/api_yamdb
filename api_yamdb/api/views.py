@@ -132,4 +132,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return review.comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user, review=self.get_review())
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review(),
+        )

@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.shortcuts import get_object_or_404
 
 from .validators import validate_username
-from reviews.models import Comments, User, Review
+from reviews.models import Comments, User, Review, Title
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -68,7 +69,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     author = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='username'
+        slug_field='username',
     )
     score = serializers.IntegerField()
 
@@ -77,17 +78,28 @@ class ReviewSerializer(serializers.ModelSerializer):
                   'author', 'score', 'pub_date')
         model = Review
 
-    def validate_score(self, value):
-        if value not in range(1, 11):
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get('title_id')
+        author = self.context.get('request').user
+        title = get_object_or_404(Title, id=title_id)
+        if (title.reviews.filter(author=author).exists()
+                and self.context.get('request').method != 'PATCH'):
             raise serializers.ValidationError(
-                'Оценка должны быть в промежутке от 1 до 10!'
+                'Вы уже оставляли отзыв на это произведение!'
             )
+        return data
+
+    def validate_score(self, value):
+        if value < 1 or value > 10:
+            raise serializers.ValidationError('Недопустимое значение!')
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
 
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True,
+        slug_field='username',
     )
 
     class Meta:
