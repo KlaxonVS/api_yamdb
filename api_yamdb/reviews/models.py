@@ -25,7 +25,7 @@ class User(AbstractUser):
         choices=ROLE_CHOICES,
         default=USER
     )
-    bio = models.TextField('Биография', blank=True,)
+    bio = models.TextField('Биография', null=True, blank=True)
     email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True,
