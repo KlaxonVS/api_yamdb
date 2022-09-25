@@ -141,10 +141,6 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
-    # нужен поиск по name
-    # lookup_field по умолчанию pk, а у нас slug
-    # и в данном случае мы не сможем удалить категорию
-
 
 class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
                    mixins.CreateModelMixin, mixins.DestroyModelMixin):
