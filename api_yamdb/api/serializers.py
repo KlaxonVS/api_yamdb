@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from .validators import validate_username
 from reviews.models import (Comments, User, Review, Title, Genre,
-                            GenreTitle, Category)
+                            Category)
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -68,6 +68,11 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для работы с объектами Review.
+    Использует кастомный метод validate().
+    """
+
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
@@ -79,6 +84,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
+        """
+        Не допускает создания 2 отзывов одним автором
+        на одно произведение.
+        """
         title_id = self.context['view'].kwargs.get('title_id')
         author = self.context.get('request').user
         title = get_object_or_404(Title, id=title_id)
@@ -90,12 +99,17 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     def validate_score(self, value):
+        """
+        Не допускает постановки оценки,
+        не попадающей в промежуток (1,10).
+        """
         if value < 1 or value > 10:
             raise serializers.ValidationError('Недопустимое значение!')
         return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами Review."""
 
     author = serializers.SlugRelatedField(
         read_only=True,

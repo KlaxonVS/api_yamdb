@@ -19,8 +19,6 @@ router_v1.register(
     CommentsViewSet,
     basename='comments'
 )
-# не забываем на конце не ставить слэш, так как по умолчанию у роутера
-# trailing_slash=True
 router_v1.register(r'categories', CategoryViewSet, basename='categories')
 router_v1.register(r'genres', GenreViewSet, basename='genres')
 

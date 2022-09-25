@@ -16,8 +16,7 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           CategorySerializer, GenreSerializer)
 from .utils import calculate_rating, send_confirmation_code
 from .filters import TitlesFilter
-from reviews.models import User, Review, Title, Genre, Category, Comments
-
+from reviews.models import User, Review, Title, Genre, Category
 
 
 @api_view(['post'])
@@ -95,6 +94,13 @@ class UserEditViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Вьюсет для работы с объектами Review.
+    Методы perform_create, perform_update и perform_destroy
+    переопределены для автоматического рассчета рейтинга связанного
+    объекта Title.
+    """
+
     permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
@@ -120,6 +126,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с объектами Comment."""
+
     permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
