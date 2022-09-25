@@ -6,6 +6,7 @@ from api.utils import calculate_rating
 
 
 def load_users():
+    """Загружает данные из файла users.csv."""
     print('loading user data...')
     with open('static/data/users.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -23,6 +24,7 @@ def load_users():
 
 
 def load_genres():
+    """Загружает данные из файла genre.csv."""
     print('loading genre data...')
     with open('static/data/genre.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -39,6 +41,7 @@ def load_genres():
 
 
 def load_categories():
+    """Загружает данные из файла category.csv."""
     print('loading category data...')
     with open('static/data/category.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -55,6 +58,7 @@ def load_categories():
 
 
 def load_title():
+    """Загружает данные из файла titles.csv."""
     print('loading title data...')
     with open('static/data/titles.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -73,6 +77,7 @@ def load_title():
 
 
 def load_genre_title():
+    """Загружает данные из файла genre_title.csv."""
     print('loading genre/title relation data...')
     with open('static/data/genre_title.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -89,6 +94,7 @@ def load_genre_title():
 
 
 def load_reviews():
+    """Загружает данные из файла review.csv."""
     print('loading reviews data...')
     with open('static/data/review.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -108,6 +114,7 @@ def load_reviews():
 
 
 def load_comments():
+    """Загружает данные из файла comments.csv."""
     print('loading comment data...')
     with open('static/data/comments.csv', encoding='utf-8') as file:
         reader = DictReader(file)
@@ -126,6 +133,7 @@ def load_comments():
 
 
 def rating_update():
+    """Обновляет поле rating у всех объектов Title."""
     titles = Title.objects.all()
     for title in titles:
         calculate_rating(title)
