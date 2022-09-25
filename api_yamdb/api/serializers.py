@@ -12,7 +12,8 @@ class UserSignupSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
+        validators=[UniqueValidator(queryset=User.objects.all()),
+                    validate_username],
     )
 
     class Meta:
