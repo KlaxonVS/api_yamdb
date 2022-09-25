@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueValidator
 from django.shortcuts import get_object_or_404
 
 from .validators import validate_username
-from reviews.models import Comments, User, Review, Title
+from reviews.models import Comments, User, Review, Title, Genre, Category
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -66,12 +66,10 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
     )
-    score = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'text',
@@ -105,3 +103,28 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comments
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    # genre и category нужно определить как
+    # SlugRelatedField с slug_field='slug' и задать queryset,
+    # чтобы ограничить только существующими genre и category
+    # genre может быть много,
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
+        )
+        read_only_fields = ('rating',)
+        model = Title
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category

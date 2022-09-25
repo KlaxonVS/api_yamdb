@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import (validate_username,
@@ -106,6 +107,7 @@ class Title(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание',
+        max_length=400,
         null=True,
         blank=True
     )
@@ -121,10 +123,10 @@ class Title(models.Model):
         related_name='titles',
         null=True
     )
-    rating = models.IntegerField(
+    rating = models.PositiveIntegerField(
         verbose_name='Рейтинг',
-        null=True,
-        default=None
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
+        default=0
     )
 
     def __str__(self):
@@ -167,7 +169,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField(
+    score = models.PositiveIntegerField(
         verbose_name='Оценка',
         validators=[validate_score_range]
     )
