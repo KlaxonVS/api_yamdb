@@ -1,17 +1,19 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, status, filters
+from rest_framework import viewsets, permissions, status, filters, mixins
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .permissions import IsAdmin, IsAdminModerAuthorOrReadOnly
+from .permissions import (IsAdmin, IsAdminOrReadOnly,
+                          IsAdminModerAuthorOrReadOnly)
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
-                          EditForUserSerializer, ReviewSerializer)
+                          EditForUserSerializer, ReviewSerializer,
+                          TitleSerializer, CategorySerializer, GenreSerializer)
 from .utils import calculate_rating, send_confirmation_code
-from reviews.models import User, Review, Title
+from reviews.models import User, Review, Title, Genre, Category, Comments
 
 
 @api_view(['post'])
@@ -43,7 +45,7 @@ def register_or_confirm_code(request):
 @api_view(['post'])
 @permission_classes([permissions.AllowAny])
 def get_token(request):
-    """API-фунуция для проверки кода подтверждения и отправки токена"""
+    """API-функция для проверки кода подтверждения и отправки токена"""
     serializer = GetTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
@@ -86,11 +88,9 @@ class UserEditViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-
     permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer_class = ReviewSerializer
     pagination_class = LimitOffsetPagination
@@ -103,6 +103,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
+        # необходима функция расчета средней оценки titles
         serializer.save(author=self.request.user, title=self.get_title())
         calculate_rating(self.get_title())
 
@@ -112,7 +113,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
-
     permission_classes = [IsAdminModerAuthorOrReadOnly]
     serializer_class = CommentSerializer
     pagination_class = LimitOffsetPagination
@@ -126,3 +126,35 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
+
+
+class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
+    queryset = Category.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = CategorySerializer
+    pagination_class = LimitOffsetPagination
+    # нужен поиск по name
+    # lookup_field по умолчанию pk, а у нас slug
+    # и в данном случае мы не сможем удалить категорию
+    lookup_field = 'slug'
+
+
+class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
+    queryset = Genre.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = GenreSerializer
+    pagination_class = LimitOffsetPagination
+    # для закрепления: тоже что и CategoryViewSet
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = TitleSerializer
+    pagination_class = LimitOffsetPagination
+    # по redoc у нас фильтрация по ('category', 'genre', 'name', 'year'),
+    # а не поиск. Думаю  DjangoFilterBackend подойдет
+    filter_backends = (filters.SearchFilter,)
+    filter_fields = ('category', 'genre', 'name', 'year')
