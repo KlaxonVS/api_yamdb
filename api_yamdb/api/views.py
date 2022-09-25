@@ -13,7 +13,7 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           EditForUserSerializer, ReviewSerializer,
                           TitleSerializer, CategorySerializer, GenreSerializer)
 from .utils import calculate_rating, send_confirmation_code
-from reviews.models import User, Review, Title, Genre, Category, Comments
+from reviews.models import User, Review, Title, Genre, Category
 
 
 @api_view(['post'])
@@ -103,7 +103,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        # необходима функция расчета средней оценки titles
+        serializer.save(author=self.request.user, title=self.get_title())
+        calculate_rating(self.get_title())
+
+    def perform_update(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
         calculate_rating(self.get_title())
 
