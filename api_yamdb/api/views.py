@@ -10,7 +10,7 @@ from .permissions import IsAdmin, IsAdminModerAuthorOrReadOnly
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer)
-from .utils import send_confirmation_code
+from .utils import calculate_rating, send_confirmation_code
 from reviews.models import User, Review, Title
 
 
@@ -104,6 +104,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
+        calculate_rating(self.get_title())
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        calculate_rating(self.get_title())
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
