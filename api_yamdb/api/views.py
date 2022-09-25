@@ -107,6 +107,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=self.get_title())
         calculate_rating(self.get_title())
 
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user, title=self.get_title())
+        calculate_rating(self.get_title())        
+
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
         calculate_rating(self.get_title())
