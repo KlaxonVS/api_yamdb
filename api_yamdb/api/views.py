@@ -155,6 +155,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
     # по redoc у нас фильтрация по ('category', 'genre', 'name', 'year'),
-    # а не поиск. Почитай и используй DjangoFilterBackend
+    # а не поиск. Думаю  DjangoFilterBackend подойдет
     filter_backends = (filters.SearchFilter,)
     filter_fields = ('category', 'genre', 'name', 'year')
