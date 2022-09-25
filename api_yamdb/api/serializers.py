@@ -3,7 +3,8 @@ from rest_framework.validators import UniqueValidator
 from django.shortcuts import get_object_or_404
 
 from .validators import validate_username
-from reviews.models import Comments, User, Review, Title, Genre, Category
+from reviews.models import (Comments, User, Review, Title, Genre,
+                            GenreTitle, Category)
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -106,19 +107,6 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comments
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    # genre и category нужно определить как
-    # SlugRelatedField с slug_field='slug' и задать queryset,
-    # чтобы ограничить только существующими genre и category
-    # genre может быть много,
-    class Meta:
-        fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
-        read_only_fields = ('rating',)
-        model = Title
-
-
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
@@ -129,3 +117,36 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Category
+
+
+class CreateUpdateTitleSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category',
+            'rating'
+        )
+        read_only_fields = ('rating',)
+        model = Title
+
+
+class GetTitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category',
+            'rating'
+        )
+        read_only_fields = ('rating',)
+        model = Title

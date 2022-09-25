@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status, filters, mixins
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
@@ -11,9 +12,12 @@ from .permissions import (IsAdmin, IsAdminOrReadOnly,
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer,
-                          TitleSerializer, CategorySerializer, GenreSerializer)
+                          GetTitleSerializer, CreateUpdateTitleSerializer,
+                          CategorySerializer, GenreSerializer)
 from .utils import calculate_rating, send_confirmation_code
-from reviews.models import User, Review, Title, Genre, Category
+from .filters import TitlesFilter
+from reviews.models import User, Review, Title, Genre, Category, Comments
+
 
 
 @api_view(['post'])
@@ -137,10 +141,9 @@ class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
-    # нужен поиск по name
-    # lookup_field по умолчанию pk, а у нас slug
-    # и в данном случае мы не сможем удалить категорию
     lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
@@ -149,15 +152,19 @@ class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
-    # для закрепления: тоже что и CategoryViewSet
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly]
-    serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
-    # по redoc у нас фильтрация по ('category', 'genre', 'name', 'year'),
-    # а не поиск. Думаю  DjangoFilterBackend подойдет
-    filter_backends = (filters.SearchFilter,)
-    filter_fields = ('category', 'genre', 'name', 'year')
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitlesFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetTitleSerializer
+        return CreateUpdateTitleSerializer
