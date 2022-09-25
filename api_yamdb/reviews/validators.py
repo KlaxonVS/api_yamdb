@@ -18,6 +18,7 @@ def validate_year(value):
     """Проверяет, что год выпуска не больше текущего"""
     if value > timezone.now().year:
         raise ValidationError(
-            (f'Год выпуска не может быть больше текущего: {timezone.now().year}'
+            ('Год выпуска не может быть больше текущего: '
+             f'{timezone.now().year}'
              f'Ваш год: {value}'),
         )
