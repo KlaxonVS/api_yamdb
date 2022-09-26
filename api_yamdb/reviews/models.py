@@ -3,7 +3,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import (validate_username,
-                         validate_score_range,
                          validate_year)
 
 
@@ -180,7 +179,10 @@ class Review(ReviewComment):
     )
     score = models.PositiveIntegerField(
         verbose_name='Оценка',
-        validators=[validate_score_range]
+        validators=[
+            MinValueValidator(1, message='Оценка не может быть меньше 1!'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10!')
+        ],
     )
 
     class Meta(ReviewComment.Meta):
