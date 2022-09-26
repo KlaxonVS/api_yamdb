@@ -177,7 +177,7 @@ class Review(ReviewComment):
         Title,
         on_delete=models.CASCADE,
     )
-    score = models.PositiveIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Оценка',
         validators=[
             MinValueValidator(1, message='Оценка не может быть меньше 1!'),
