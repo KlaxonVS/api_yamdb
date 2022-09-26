@@ -82,20 +82,21 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text',
                   'author', 'score', 'pub_date')
         model = Review
+        read_only_fields = ('title')
 
     def validate(self, data):
         """
         Не допускает создания 2 отзывов одним автором
         на одно произведение.
         """
-        title_id = self.context['view'].kwargs.get('title_id')
-        author = self.context.get('request').user
-        title = get_object_or_404(Title, id=title_id)
-        if (title.reviews.filter(author=author).exists()
-                and self.context.get('request').method != 'PATCH'):
-            raise serializers.ValidationError(
-                'Вы уже оставляли отзыв на это произведение!'
-            )
+        if self.context.get('request').method == 'POST':
+            title_id = self.context['view'].kwargs.get('title_id')
+            author = self.context.get('request').user
+            title = get_object_or_404(Title, id=title_id)
+            if title.reviews.filter(author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставляли отзыв на это произведение!'
+                )
         return data
 
     def validate_score(self, value):
@@ -119,6 +120,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comments
+        read_only_fields = ('review')
 
 
 class GenreSerializer(serializers.ModelSerializer):
