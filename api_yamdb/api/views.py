@@ -15,7 +15,7 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           EditForUserSerializer, ReviewSerializer,
                           GetTitleSerializer, CreateUpdateTitleSerializer,
                           CategorySerializer, GenreSerializer)
-from .utils import calculate_rating, send_confirmation_code
+from .utils import send_confirmation_code
 from .filters import TitlesFilter
 from reviews.models import User, Review, Title, Genre, Category
 
@@ -114,15 +114,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
-        calculate_rating(self.get_title())
-
-    def perform_update(self, serializer):
-        serializer.save(author=self.request.user, title=self.get_title())
-        calculate_rating(self.get_title())
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        calculate_rating(self.get_title())
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
