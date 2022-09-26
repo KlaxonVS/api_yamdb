@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from ._load_data_funcs import (load_users, load_genres,
                                load_categories, load_title,
                                load_genre_title, load_comments,
-                               load_reviews, rating_update)
+                               load_reviews)
 
 
 class Command(BaseCommand):
@@ -27,6 +27,5 @@ class Command(BaseCommand):
             load_genre_title()
             load_reviews()
             load_comments()
-            rating_update()
         except Exception as error:
             print(error)
