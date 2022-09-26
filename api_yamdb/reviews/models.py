@@ -122,11 +122,6 @@ class Title(models.Model):
         related_name='titles',
         null=True
     )
-    rating = models.PositiveIntegerField(
-        verbose_name='Рейтинг',
-        validators=[MinValueValidator(0), MaxValueValidator(10)],
-        null=True
-    )
 
     def __str__(self):
         return self.name
