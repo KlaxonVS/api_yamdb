@@ -156,22 +156,11 @@ class GenreTitle(models.Model):
         verbose_name_plural = 'Произведения и жанры'
 
 
-class Review(models.Model):
+class ReviewComment(models.Model):
 
-    text = models.TextField(verbose_name='Текст отзыва')
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='reviews'
-    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews'
-    )
-    score = models.PositiveIntegerField(
-        verbose_name='Оценка',
-        validators=[validate_score_range]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -179,7 +168,22 @@ class Review(models.Model):
     )
 
     class Meta:
-        ordering = ['title', 'pub_date']
+        ordering = ['pub_date']
+
+
+class Review(ReviewComment):
+
+    text = models.TextField(verbose_name='Текст отзыва')
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+    )
+    score = models.PositiveIntegerField(
+        verbose_name='Оценка',
+        validators=[validate_score_range]
+    )
+
+    class Meta(ReviewComment.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
@@ -188,27 +192,18 @@ class Review(models.Model):
                 name='unique_review'
             )
         ]
+        default_related_name = 'reviews'
 
 
-class Comments(models.Model):
+class Comments(ReviewComment):
 
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='comments'
     )
     text = models.TextField(verbose_name='Текст комментария')
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True
-    )
 
-    class Meta:
-        ordering = ['review', 'pub_date']
+    class Meta(ReviewComment.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
