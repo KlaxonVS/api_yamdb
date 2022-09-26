@@ -165,6 +165,7 @@ class ReviewComment(models.Model):
 
     class Meta:
         ordering = ('pub_date')
+        abstract = True
 
 
 class Review(ReviewComment):
