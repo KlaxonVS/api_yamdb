@@ -169,7 +169,7 @@ class ReviewComment(models.Model):
     )
 
     class Meta:
-        ordering = ['pub_date']
+        ordering = ('pub_date')
 
 
 class Review(ReviewComment):
