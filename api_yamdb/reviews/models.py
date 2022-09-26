@@ -157,6 +157,11 @@ class ReviewComment(models.Model):
         db_index=True,
         verbose_name='Дата публикации'
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
 
     class Meta:
         ordering = ('pub_date',)
@@ -166,12 +171,6 @@ class ReviewComment(models.Model):
 class Review(ReviewComment):
 
     text = models.TextField(verbose_name='Текст отзыва')
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор',
-        related_name='reviews'
-    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -205,12 +204,6 @@ class Comments(ReviewComment):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор',
         related_name='comments'
     )
     text = models.TextField(verbose_name='Текст комментария')
