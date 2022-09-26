@@ -196,6 +196,9 @@ class Review(ReviewComment):
         ]
         default_related_name = 'reviews'
 
+    def __str__(self):
+        return self.text[:15]
+
 
 class Comments(ReviewComment):
 
@@ -209,3 +212,6 @@ class Comments(ReviewComment):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
+
+    def __str__(self):
+        return self.text
