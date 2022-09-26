@@ -15,11 +15,10 @@ class TitleAdmin(admin.ModelAdmin):
         'description',
         'category',
         'year',
-        'rating')
+    )
     inlines = (GenreInline,)
     list_editable = ('category', )
     search_fields = ('name', )
-    list_filter = ('rating', )
     filter_horizontal = ('genre', )
     empty_value_display = '-пусто-'
 
