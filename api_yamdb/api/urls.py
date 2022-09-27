@@ -22,8 +22,13 @@ router_v1.register(
 router_v1.register(r'categories', CategoryViewSet, basename='categories')
 router_v1.register(r'genres', GenreViewSet, basename='genres')
 
+extra_patterns = [
+    path('signup/', register_or_confirm_code, name='register_or_code'),
+    path('token/', get_token, name='get_token'),
+]
+
+
 urlpatterns = [
     path('v1/', include(router_v1.urls), name='review-api'),
-    path('v1/auth/signup/', register_or_confirm_code, name='register_or_code'),
-    path('v1/auth/token/', get_token, name='get_token'),
+    path('v1/auth/', include(extra_patterns), name='auth'),
 ]

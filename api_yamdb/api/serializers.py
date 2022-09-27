@@ -3,13 +3,14 @@ from rest_framework.validators import UniqueValidator
 from django.shortcuts import get_object_or_404
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .validators import validate_username
 from reviews.models import (Comments, User, Review, Title, Genre,
                             Category)
+from reviews.validators import validate_username
 
 
-class UserSignupSerializer(serializers.ModelSerializer):
-    """Сериализатор для регистрации нового пользователя"""
+class AdminUserEditSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения администратором информации о пользователях
+        и её редактирования."""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
@@ -19,13 +20,24 @@ class UserSignupSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role',)
+        model = User
+
+
+class UserSignupSerializer(AdminUserEditSerializer):
+    """Сериализатор для регистрации нового пользователя, отправки им и
+    зарегистрированным администратором confirmation_code."""
+    email = serializers.EmailField()
+    username = serializers.CharField(validators=[validate_username])
+
+    class Meta:
         fields = ('email', 'username')
         model = User
 
 
-class GetTokenSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения токена"""
-    username = serializers.CharField()
+class GetTokenSerializer(UserSignupSerializer):
+    """Сериализатор для получения токена."""
     confirmation_code = serializers.CharField()
 
     class Meta:
@@ -33,39 +45,15 @@ class GetTokenSerializer(serializers.ModelSerializer):
         model = User
 
 
-class EditForUserSerializer(serializers.ModelSerializer):
+class EditForUserSerializer(AdminUserEditSerializer):
     """Сериализатор для получения пользователем информации о себе
-    и её редактирования"""
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-    )
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all()),
-                    validate_username],
-    )
+    и её редактирования."""
 
     class Meta:
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
         model = User
         read_only_fields = ('role',)
-
-
-class AdminUserEditSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения администратором информации о пользователях
-        и её редактирования"""
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())],
-    )
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all()),
-                    validate_username],
-    )
-
-    class Meta:
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-        model = User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
