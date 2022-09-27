@@ -1,3 +1,5 @@
+import re
+
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -6,6 +8,9 @@ def validate_username(name):
     """Делает невозможным использовать <<me>> как имя"""
     if name.lower() == 'me':
         raise ValidationError('Нельзя использовать "me" как username')
+    if not re.fullmatch(r'^[\w.@+-]+\Z', name):
+        raise ValidationError('username может состоять только'
+                              ' из букв, цифр и @/./+/-/_')
 
 
 def validate_score_range(score):
