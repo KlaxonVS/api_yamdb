@@ -5,6 +5,7 @@ from django.db import models
 from .validators import (validate_username,
                          validate_score_range,
                          validate_year)
+from api_yamdb.settings import USERNAME_M_LENGTH, EMAIL_M_LENGTH
 
 
 class User(AbstractUser):
@@ -19,22 +20,28 @@ class User(AbstractUser):
         (USER, 'Пользователь'),
     )
 
+    role_length = 0
+    for role in ROLE_CHOICES:
+        if len(role[0]) > role_length:
+            role_length = len(role[0])
+
     role = models.CharField(
         'Роль',
-        max_length=10,
+        max_length=role_length,
         choices=ROLE_CHOICES,
         default=USER
     )
     bio = models.TextField('Биография', null=True, blank=True)
     email = models.EmailField(
+        max_length=EMAIL_M_LENGTH,
         verbose_name='Электронная почта',
         unique=True,
     )
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=150,
+        max_length=USERNAME_M_LENGTH,
         unique=True,
-        validators=[validate_username]
+        validators=[validate_username],
     )
 
     @property
@@ -45,13 +52,16 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         """Проверяет что пользователь администратор"""
-        return self.role == self.ADMIN or self.is_superuser
+        return self.role == self.ADMIN or self.is_staff
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+    def __str__(self):
+        return self.email
+
     class Meta:
-        ordering = ['username']
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -88,7 +98,7 @@ class Genre(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f'{self.email} -- {self.role}'
 
     class Meta:
         verbose_name = 'Жанр'
