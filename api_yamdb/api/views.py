@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from django.db.models import Avg
 
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAdminModerAuthorOrReadOnly)
@@ -14,7 +15,7 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           EditForUserSerializer, ReviewSerializer,
                           GetTitleSerializer, CreateUpdateTitleSerializer,
                           CategorySerializer, GenreSerializer)
-from .utils import calculate_rating, send_confirmation_code
+from .utils import send_confirmation_code
 from .filters import TitlesFilter
 from reviews.models import User, Review, Title, Genre, Category
 
@@ -109,20 +110,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Title, id=self.kwargs['title_id'])
 
     def get_queryset(self):
-        title = self.get_title()
-        return title.reviews.all()
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
-        calculate_rating(self.get_title())
-
-    def perform_update(self, serializer):
-        serializer.save(author=self.request.user, title=self.get_title())
-        calculate_rating(self.get_title())
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        calculate_rating(self.get_title())
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
@@ -136,8 +127,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return get_object_or_404(Review, id=self.kwargs['review_id'])
 
     def get_queryset(self):
-        review = self.get_review()
-        return review.comments.all()
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
@@ -166,7 +156,8 @@ class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(
+        Avg('reviews__score')).order_by('name')
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)

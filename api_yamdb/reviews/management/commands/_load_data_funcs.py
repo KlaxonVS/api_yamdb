@@ -2,7 +2,6 @@ from csv import DictReader
 
 from reviews.models import (Category, Comments, Genre,
                             Title, GenreTitle, Review, User)
-from api.utils import calculate_rating
 
 
 def load_users():
@@ -130,11 +129,3 @@ def load_comments():
             comments.append(comment)
         Comments.objects.bulk_create(comments)
     print('comment data loaded!')
-
-
-def rating_update():
-    """Обновляет поле rating у всех объектов Title."""
-    titles = Title.objects.all()
-    for title in titles:
-        calculate_rating(title)
-    print('rating updated!')

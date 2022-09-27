@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.shortcuts import get_object_or_404
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .validators import validate_username
 from reviews.models import (Comments, User, Review, Title, Genre,
@@ -77,35 +78,33 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='username',
     )
+    score = serializers.IntegerField(
+        validators=[
+            MinValueValidator(1, message='Оценка не может быть меньше 1!'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10!')
+        ]
+    )
 
     class Meta:
-        fields = ('id', 'text',
+        fields = ('id', 'text', 'title',
                   'author', 'score', 'pub_date')
         model = Review
+        read_only_fields = ('title',)
 
     def validate(self, data):
         """
         Не допускает создания 2 отзывов одним автором
         на одно произведение.
         """
-        title_id = self.context['view'].kwargs.get('title_id')
-        author = self.context.get('request').user
-        title = get_object_or_404(Title, id=title_id)
-        if (title.reviews.filter(author=author).exists()
-                and self.context.get('request').method != 'PATCH'):
-            raise serializers.ValidationError(
-                'Вы уже оставляли отзыв на это произведение!'
-            )
+        if self.context.get('request').method == 'POST':
+            title_id = self.context['view'].kwargs.get('title_id')
+            author = self.context.get('request').user
+            title = get_object_or_404(Title, id=title_id)
+            if title.reviews.filter(author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставляли отзыв на это произведение!'
+                )
         return data
-
-    def validate_score(self, value):
-        """
-        Не допускает постановки оценки,
-        не попадающей в промежуток (1,10).
-        """
-        if value < 1 or value > 10:
-            raise serializers.ValidationError('Недопустимое значение!')
-        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -117,8 +116,9 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'pub_date')
+        fields = ('id', 'text', 'author', 'pub_date', 'review')
         model = Comments
+        read_only_fields = ('review',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -146,21 +146,22 @@ class CreateUpdateTitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category',
-            'rating'
+            'id', 'name', 'year', 'description', 'genre', 'category'
         )
-        read_only_fields = ('rating',)
         model = Title
 
 
 class GetTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField(
+        source='reviews__score__avg',
+        read_only=True
+    )
 
     class Meta:
         fields = (
             'id', 'name', 'year', 'description', 'genre', 'category',
-            'rating'
-        )
+            'rating')
         read_only_fields = ('rating',)
         model = Title
