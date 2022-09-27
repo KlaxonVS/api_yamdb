@@ -174,7 +174,6 @@ class Review(ReviewComment):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
         verbose_name='Оценка',
@@ -204,7 +203,6 @@ class Comments(ReviewComment):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
-        related_name='comments'
     )
     text = models.TextField(verbose_name='Текст комментария')
 
