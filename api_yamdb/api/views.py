@@ -13,7 +13,7 @@ from .permissions import (IsAdmin, IsAdminOrReadOnly,
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer,
-                          GetTitleSerializer, CreateUpdateTitleSerializer,
+                          TitleSerializer,
                           CategorySerializer, GenreSerializer)
 from .utils import send_confirmation_code
 from .filters import TitlesFilter
@@ -126,24 +126,24 @@ class CommentsViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=self.get_review())
 
 
-class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+class GenreCategoryViewSetMixin(viewsets.GenericViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class CategoryViewSet(GenreCategoryViewSetMixin, mixins.ListModelMixin,
                       mixins.CreateModelMixin, mixins.DestroyModelMixin):
     queryset = Category.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = CategorySerializer
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
 
 
-class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class GenreViewSet(GenreCategoryViewSetMixin, mixins.ListModelMixin,
+                   mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                   ):
     queryset = Genre.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = GenreSerializer
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -151,8 +151,4 @@ class TitleViewSet(viewsets.ModelViewSet):
         Avg('reviews__score')).order_by('name')
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return GetTitleSerializer
-        return CreateUpdateTitleSerializer
+    serializer_class = TitleSerializer

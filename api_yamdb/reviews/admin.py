@@ -19,7 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 
     def full_name(self, obj,):
         if not obj.get_full_name():
-            return 'Безимянный'
+            return 'Безымянный'
         return obj.get_full_name()
 
     full_name.short_description = 'Полное имя'
