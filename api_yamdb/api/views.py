@@ -126,22 +126,22 @@ class CommentsViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=self.get_review())
 
 
-class GenreCategoryViewSetMixin(viewsets.GenericViewSet):
+class GenreCategoryViewSetMixin(viewsets.GenericViewSet,
+                                mixins.ListModelMixin,
+                                mixins.CreateModelMixin,
+                                mixins.DestroyModelMixin,):
     permission_classes = [IsAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
 
-class CategoryViewSet(GenreCategoryViewSetMixin, mixins.ListModelMixin,
-                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class CategoryViewSet(GenreCategoryViewSetMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(GenreCategoryViewSetMixin, mixins.ListModelMixin,
-                   mixins.CreateModelMixin, mixins.DestroyModelMixin,
-                   ):
+class GenreViewSet(GenreCategoryViewSetMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 

@@ -103,10 +103,9 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Дата выхода',
-        validators=[validate_year]
+        validators=[validate_year],
+        db_index=True
     )
-    # Слишком большой тип данных для такого маленького числа.
-    # Плюс чтобы ускорить поиск произведений по году, лучше добавить индекс.
     description = models.TextField(
         verbose_name='Описание',
         max_length=400,
