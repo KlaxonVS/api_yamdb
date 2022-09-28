@@ -13,7 +13,7 @@ from .permissions import (IsAdmin, IsAdminOrReadOnly,
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer,
-                          TitleSerializer,
+                          CreateUpdateTitleSerializer, GetTitleSerializer,
                           CategorySerializer, GenreSerializer)
 from .utils import send_confirmation_code
 from .filters import TitlesFilter
@@ -151,4 +151,9 @@ class TitleViewSet(viewsets.ModelViewSet):
         Avg('reviews__score')).order_by('name')
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
-    serializer_class = TitleSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GetTitleSerializer
+
+        return CreateUpdateTitleSerializer

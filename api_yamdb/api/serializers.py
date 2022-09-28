@@ -121,32 +121,70 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = CategorySerializer(value)
-        return serializer.data
+# class CategoryField(serializers.SlugRelatedField):
+#     def to_representation(self, value):
+#         serializer = CategorySerializer(value)
+#         return serializer.data
+#
+#
+# class GenreField(serializers.SlugRelatedField):
+#     def to_representation(self, value):
+#         serializer = GenreSerializer(value)
+#         return serializer.data
 
 
-class GenreField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = GenreSerializer(value)
-        return serializer.data
+# class TitleSerializer(serializers.ModelSerializer):
+#     rating = serializers.IntegerField(
+#         source='reviews__score__avg',
+#         read_only=True
+#     )
+#     category = CategoryField(
+#         slug_field='slug',
+#         queryset=Category.objects.all(),
+#         required=False
+#     )
+#     genre = GenreField(
+#         slug_field='slug',
+#         queryset=Genre.objects.all(),
+#         many=True
+#     )
+#
+#     class Meta:
+#         fields = (
+#             'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
+#         )
+#         read_only_fields = (
+#             'id', 'genre', 'category', 'rating'
+#         )
+#         model = Title
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(
-        source='reviews__score__avg',
-        read_only=True
-    )
-    category = CategoryField(
+class CreateUpdateTitleSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Category.objects.all(),
-        required=False
+        queryset=Category.objects.all()
     )
-    genre = GenreField(
+    genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
         many=True
+    )
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+        model = Title
+
+    def to_representation(self, instance):
+        serializer = GetTitleSerializer(instance)
+        return serializer.data
+
+
+class GetTitleSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField(
+        source='reviews__score__avg',
+        read_only=True
     )
 
     class Meta:
@@ -154,6 +192,6 @@ class TitleSerializer(serializers.ModelSerializer):
             'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
         )
         read_only_fields = (
-            'id', 'genre', 'category', 'rating'
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
         )
         model = Title
