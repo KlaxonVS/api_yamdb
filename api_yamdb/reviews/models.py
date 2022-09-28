@@ -115,11 +115,9 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
-        through='GenreTitle'
+        related_name='titles'
     )
-    # Лишняя строка, и лишняя промежуточная модель.
-    # У нас в промежуточной модели ничего не меняется,
-    #  можно её не писать, в БД записи сами создадутся даже без модели.
+
     category = models.ForeignKey(
         Category,
         verbose_name='Категория',
@@ -135,24 +133,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class GenreTitle(models.Model):
-    title = models.ForeignKey(
-        Title,
-        verbose_name='Произведение',
-        on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre,
-        verbose_name='Жанр',
-        on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Произведение и жанр'
-        verbose_name_plural = 'Произведения и жанры'
-
-    def __str__(self):
-        return f'{self.title}, жанр - {self.genre}'
 
 
 class ReviewComment(models.Model):
