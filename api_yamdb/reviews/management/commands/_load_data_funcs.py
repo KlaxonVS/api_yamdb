@@ -85,6 +85,7 @@ def load_genre_title():
             genre = Genre.objects.get(id=row['genre_id'])
             title = Title.objects.get(id=row['title_id'])
             title.genre.add(genre)
+            title.save()
     print('genre/title relation data loaded!')
 
 
