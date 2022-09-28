@@ -1,7 +1,7 @@
 from csv import DictReader
 
 from reviews.models import (Category, Comments, Genre,
-                            Title, GenreTitle, Review, User)
+                            Title, Review, User)
 
 
 def load_users():
@@ -80,15 +80,12 @@ def load_genre_title():
     print('loading genre/title relation data...')
     with open('static/data/genre_title.csv', encoding='utf-8') as file:
         reader = DictReader(file)
-        genres_titles = []
+
         for row in reader:
-            genre_title = GenreTitle(
-                title=Title.objects.get(id=row['title_id']),
-                id=row['id'],
-                genre=Genre.objects.get(id=row['genre_id'])
-            )
-            genres_titles.append(genre_title)
-        GenreTitle.objects.bulk_create(genres_titles)
+            genre = Genre.objects.get(id=row['genre_id'])
+            title = Title.objects.get(id=row['title_id'])
+            title.genre.add(genre)
+            title.save()
     print('genre/title relation data loaded!')
 
 
