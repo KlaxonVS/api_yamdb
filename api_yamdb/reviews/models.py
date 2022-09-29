@@ -147,15 +147,18 @@ class ReviewComment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
+    text = models.TextField(verbose_name='Текст')
 
     class Meta:
         ordering = ('pub_date',)
         abstract = True
 
+    def __str__(self):
+        return self.text
+
 
 class Review(ReviewComment):
 
-    text = models.TextField(verbose_name='Текст отзыва')
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -179,9 +182,6 @@ class Review(ReviewComment):
         ]
         default_related_name = 'reviews'
 
-    def __str__(self):
-        return self.text[:15]
-
 
 class Comments(ReviewComment):
 
@@ -189,12 +189,8 @@ class Comments(ReviewComment):
         Review,
         on_delete=models.CASCADE,
     )
-    text = models.TextField(verbose_name='Текст комментария')
 
     class Meta(ReviewComment.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
-
-    def __str__(self):
-        return self.text
