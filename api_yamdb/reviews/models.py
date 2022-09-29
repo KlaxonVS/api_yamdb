@@ -6,7 +6,6 @@ from .validators import (validate_username,
                          validate_year)
 from api_yamdb.settings import USERNAME_M_LENGTH, EMAIL_M_LENGTH
 
-
 class User(AbstractUser):
 
     ADMIN = 'admin'
@@ -56,13 +55,13 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    def __str__(self):
-        return self.email
-
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.email
 
 
 class GenreCategory(models.Model):
