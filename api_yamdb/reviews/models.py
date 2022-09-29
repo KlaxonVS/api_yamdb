@@ -6,6 +6,7 @@ from .validators import (validate_username,
                          validate_year)
 from api_yamdb.settings import USERNAME_M_LENGTH, EMAIL_M_LENGTH
 
+
 class User(AbstractUser):
 
     ADMIN = 'admin'
