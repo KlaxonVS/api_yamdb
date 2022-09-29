@@ -13,7 +13,7 @@ from .permissions import (IsAdmin, IsAdminOrReadOnly,
 from .serializers import (CommentSerializer, UserSignupSerializer,
                           GetTokenSerializer, AdminUserEditSerializer,
                           EditForUserSerializer, ReviewSerializer,
-                          GetTitleSerializer, CreateUpdateTitleSerializer,
+                          CreateUpdateTitleSerializer, GetTitleSerializer,
                           CategorySerializer, GenreSerializer)
 from .utils import send_confirmation_code
 from .filters import TitlesFilter
@@ -126,24 +126,24 @@ class CommentsViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=self.get_review())
 
 
-class CategoryViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                      mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class GenreCategoryViewSetMixin(viewsets.GenericViewSet,
+                                mixins.ListModelMixin,
+                                mixins.CreateModelMixin,
+                                mixins.DestroyModelMixin,):
+    permission_classes = [IsAdminOrReadOnly]
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class CategoryViewSet(GenreCategoryViewSetMixin):
     queryset = Category.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = CategorySerializer
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
 
 
-class GenreViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                   mixins.CreateModelMixin, mixins.DestroyModelMixin):
+class GenreViewSet(GenreCategoryViewSetMixin):
     queryset = Genre.objects.all()
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = GenreSerializer
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -155,4 +155,5 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GetTitleSerializer
+
         return CreateUpdateTitleSerializer

@@ -15,14 +15,3 @@ def send_confirmation_code(user):
         from_email=None,
         recipient_list=[user.email],
     )
-
-
-def calculate_rating(title):
-    """
-    Функция для подсчета рейтинга.
-    Принимает объект Title, перерасчитывает для него поле rating.
-    """
-    rating_dict = title.reviews.aggregate(average_score=Avg('score'))
-    final_rating = rating_dict['average_score']
-    title.rating = round(final_rating)
-    title.save()

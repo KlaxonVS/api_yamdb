@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Category, Genre, GenreTitle, Title, Comments, Review
+from .models import User, Category, Genre, Title, Comments, Review
 
 admin.site.empty_value_display = '-пусто-'
 
@@ -19,15 +19,10 @@ class UserAdmin(admin.ModelAdmin):
 
     def full_name(self, obj,):
         if not obj.get_full_name():
-            return 'Безимянный'
+            return 'Безымянный'
         return obj.get_full_name()
 
     full_name.short_description = 'Полное имя'
-
-
-class GenreInline(admin.TabularInline):
-    model = GenreTitle
-    extra = 2
 
 
 class TitleAdmin(admin.ModelAdmin):
@@ -38,7 +33,6 @@ class TitleAdmin(admin.ModelAdmin):
         'category',
         'year',
     )
-    inlines = (GenreInline,)
     list_editable = ('category', )
     search_fields = ('name', )
     filter_horizontal = ('genre', )
