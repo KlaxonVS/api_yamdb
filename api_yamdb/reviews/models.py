@@ -147,7 +147,7 @@ class ReviewComment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
-    text = models.TextField(verbose_name='Текст')
+    text = models.TextField('Текст')
 
     class Meta:
         ordering = ('pub_date',)
@@ -164,7 +164,7 @@ class Review(ReviewComment):
         on_delete=models.CASCADE,
     )
     score = models.PositiveSmallIntegerField(
-        verbose_name='Оценка',
+        'Оценка',
         validators=[
             MinValueValidator(1, message='Оценка не может быть меньше 1!'),
             MaxValueValidator(10, message='Оценка не может быть больше 10!')
