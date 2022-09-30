@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import (validate_username,
                          validate_year)
-from api_yamdb.settings import USERNAME_M_LENGTH, EMAIL_M_LENGTH
 
 
 class User(AbstractUser):
@@ -19,26 +19,21 @@ class User(AbstractUser):
         (USER, 'Пользователь'),
     )
 
-    role_length = 0
-    for role in ROLE_CHOICES:
-        if len(role[0]) > role_length:
-            role_length = len(role[0])
-
     role = models.CharField(
         'Роль',
-        max_length=role_length,
+        max_length=max((len(role[1]) for role in ROLE_CHOICES)),
         choices=ROLE_CHOICES,
         default=USER
     )
     bio = models.TextField('Биография', null=True, blank=True)
     email = models.EmailField(
-        max_length=EMAIL_M_LENGTH,
+        max_length=settings.EMAIL_M_LENGTH,
         verbose_name='Электронная почта',
         unique=True,
     )
     username = models.CharField(
-        verbose_name='Имя пользователя',
-        max_length=USERNAME_M_LENGTH,
+        'Имя пользователя',
+        max_length=settings.USERNAME_M_LENGTH,
         unique=True,
         validators=[validate_username],
     )

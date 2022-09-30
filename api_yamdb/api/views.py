@@ -1,11 +1,11 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status, filters, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Avg
 
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAdminModerAuthorOrReadOnly)
@@ -14,8 +14,8 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           EditForUserSerializer, ReviewSerializer,
                           CreateUpdateTitleSerializer, GetTitleSerializer,
                           CategorySerializer, GenreSerializer)
-from .utils import send_confirmation_code
 from .filters import TitlesFilter
+from .utils import send_confirmation_code
 from reviews.models import User, Review, Title, Genre, Category
 
 
@@ -50,10 +50,10 @@ def get_token(request):
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data["username"]
+        username=serializer.validated_data.get('username')
     )
     if default_token_generator.check_token(
-            user, serializer.validated_data["confirmation_code"]
+            user, serializer.validated_data.get('confirmation_code')
     ):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)},
