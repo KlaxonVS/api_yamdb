@@ -143,7 +143,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
     filterset_class = TitlesFilter
-    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ('name',)
 
     def get_serializer_class(self):

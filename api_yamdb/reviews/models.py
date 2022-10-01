@@ -92,15 +92,15 @@ class Genre(GenreCategory):
 
 class Title(models.Model):
     name = models.TextField(
-        verbose_name='Название',
+        'Название',
     )
     year = models.PositiveSmallIntegerField(
-        verbose_name='Дата выхода',
+        'Дата выхода',
         validators=[validate_year],
         db_index=True
     )
     description = models.TextField(
-        verbose_name='Описание',
+        'Описание',
         null=True,
         blank=True
     )
@@ -151,6 +151,7 @@ class ReviewComment(models.Model):
 class Review(ReviewComment):
     title = models.ForeignKey(
         Title,
+        verbose_name='Произведение',
         on_delete=models.CASCADE,
     )
     score = models.PositiveSmallIntegerField(
@@ -177,6 +178,7 @@ class Comments(ReviewComment):
 
     review = models.ForeignKey(
         Review,
+        verbose_name='Отзыв',
         on_delete=models.CASCADE,
     )
 
