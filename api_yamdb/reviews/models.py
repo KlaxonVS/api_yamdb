@@ -61,11 +61,11 @@ class User(AbstractUser):
 
 class GenreCategory(models.Model):
     name = models.CharField(
-        verbose_name='Название',
+        'Название',
         max_length=settings.NAME_M_LENGTH
     )
     slug = models.SlugField(
-        verbose_name='Метка',
+        'Метка',
         max_length=settings.SLUG_M_LENGTH,
         unique=True
     )
@@ -128,7 +128,6 @@ class Title(models.Model):
 
 
 class ReviewComment(models.Model):
-
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
@@ -150,7 +149,6 @@ class ReviewComment(models.Model):
 
 
 class Review(ReviewComment):
-
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,

@@ -7,6 +7,8 @@ from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from reviews.models import Category, Genre, Review, Title, User
+
 
 from .filters import TitlesFilter
 from .mixins import GenreCategoryViewSetMixin
@@ -18,7 +20,6 @@ from .serializers import (AdminUserEditSerializer, CategorySerializer,
                           GetTitleSerializer, GetTokenSerializer,
                           ReviewSerializer, UserSignupSerializer)
 from .utils import send_confirmation_code
-from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['post'])
@@ -142,6 +143,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
     filterset_class = TitlesFilter
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ('name',)
 
     def get_serializer_class(self):
@@ -149,3 +151,4 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
+        
