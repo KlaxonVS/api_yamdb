@@ -2,22 +2,23 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, status, filters, mixins
-from rest_framework.decorators import api_view, action
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .filters import TitlesFilter
-from .permissions import (IsAdmin, IsAdminOrReadOnly,
-                          IsAdminModerAuthorOrReadOnly)
-from .serializers import (CommentSerializer, UserSignupSerializer,
-                          GetTokenSerializer, AdminUserEditSerializer,
-                          EditForUserSerializer, ReviewSerializer,
-                          CreateUpdateTitleSerializer, GetTitleSerializer,
-                          CategorySerializer, GenreSerializer)
-from .filters import TitlesFilter
+from .mixins import GenreCategoryViewSetMixin
+from .permissions import (IsAdmin, IsAdminModerAuthorOrReadOnly,
+                          IsAdminOrReadOnly)
+from .serializers import (AdminUserEditSerializer, CategorySerializer,
+                          CommentSerializer, CreateUpdateTitleSerializer,
+                          EditForUserSerializer, GenreSerializer,
+                          GetTitleSerializer, GetTokenSerializer,
+                          ReviewSerializer, UserSignupSerializer)
 from .utils import send_confirmation_code
-from reviews.models import User, Review, Title, Genre, Category
+from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['post'])
@@ -124,16 +125,6 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, review=self.get_review())
-
-
-class GenreCategoryViewSetMixin(viewsets.GenericViewSet,
-                                mixins.ListModelMixin,
-                                mixins.CreateModelMixin,
-                                mixins.DestroyModelMixin,):
-    permission_classes = [IsAdminOrReadOnly]
-    lookup_field = 'slug'
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
 
 
 class CategoryViewSet(GenreCategoryViewSetMixin):

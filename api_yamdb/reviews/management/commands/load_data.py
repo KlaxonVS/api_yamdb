@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from ._load_data_funcs import (load_users, load_genres,
-                               load_categories, load_title,
-                               load_genre_title, load_comments,
-                               load_reviews)
+from ._load_data_funcs import (load_categories, load_comments,
+                               load_genre_title, load_genres, load_reviews,
+                               load_title, load_users)
 
 
 class Command(BaseCommand):

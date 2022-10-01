@@ -1,5 +1,5 @@
-from datetime import timedelta
 import os
+from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -116,5 +116,7 @@ SIMPLE_JWT = {
 
 USERNAME_M_LENGTH = 150
 EMAIL_M_LENGTH = 150
+NAME_M_LENGTH = 256
+SLUG_M_LENGTH = 50
 FIRST_LAST_M_LENGTH = 150
 BIO_M_LENGTH = 150

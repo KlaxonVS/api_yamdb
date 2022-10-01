@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import (validate_username,
-                         validate_year)
+from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
@@ -63,17 +62,17 @@ class User(AbstractUser):
 class GenreCategory(models.Model):
     name = models.CharField(
         verbose_name='Название',
-        max_length=256
+        max_length=settings.NAME_M_LENGTH
     )
     slug = models.SlugField(
         verbose_name='Метка',
-        max_length=50,
+        max_length=settings.SLUG_M_LENGTH,
         unique=True
     )
 
     class Meta:
         abstract = True
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -92,9 +91,8 @@ class Genre(GenreCategory):
 
 
 class Title(models.Model):
-    name = models.CharField(
+    name = models.TextField(
         verbose_name='Название',
-        max_length=200
     )
     year = models.PositiveSmallIntegerField(
         verbose_name='Дата выхода',
@@ -103,7 +101,6 @@ class Title(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание',
-        max_length=400,
         null=True,
         blank=True
     )
@@ -124,7 +121,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ['name']
+        ordering = ('name',)
 
     def __str__(self):
         return self.name

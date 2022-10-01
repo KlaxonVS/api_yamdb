@@ -4,8 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import (Comments, User, Review, Title, Genre,
-                            Category)
+from reviews.models import Category, Comments, Genre, Review, Title, User
 from reviews.validators import validate_username
 
 
@@ -143,8 +142,7 @@ class CreateUpdateTitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def to_representation(self, instance):
-        serializer = GetTitleSerializer(instance)
-        return serializer.data
+        return GetTitleSerializer(instance).data
 
 
 class GetTitleSerializer(serializers.ModelSerializer):
@@ -153,10 +151,11 @@ class GetTitleSerializer(serializers.ModelSerializer):
     rating = serializers.IntegerField(read_only=True)
 
     class Meta:
-        fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
-        read_only_fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
+        fields = '__all__'
         model = Title
+
+    def get_fields(self):
+        fields = super().get_fields()
+        for field in fields.values():
+            field.read_only = True
+        return fields
