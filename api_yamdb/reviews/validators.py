@@ -9,6 +9,10 @@ def validate_username(name):
     if name.lower() == 'me':
         raise ValidationError('Нельзя использовать "me" как username')
     if not re.fullmatch(r'^[\w.@+-]+\Z', name):
+        letters = []
+        for letter in name:
+            re.match(r'^[\w.@+-]+\Z', letter)
+            letters.append(letter)
         raise ValidationError('username может состоять только'
                               ' из букв, цифр и @/./+/-/_')
 

@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb import settings
 from .validators import validate_username, validate_year
 
 
@@ -18,14 +18,9 @@ class User(AbstractUser):
         (USER, 'Пользователь'),
     )
 
-    role_length = 0
-    for role in ROLE_CHOICES:
-        if len(role[0]) > role_length:
-            role_length = len(role[0])
-
     role = models.CharField(
         'Роль',
-        max_length=role_length,
+        max_length=max((len(role[1]) for role in ROLE_CHOICES)),
         choices=ROLE_CHOICES,
         default=USER
     )
@@ -36,7 +31,7 @@ class User(AbstractUser):
         unique=True,
     )
     username = models.CharField(
-        verbose_name='Имя пользователя',
+        'Имя пользователя',
         max_length=settings.USERNAME_M_LENGTH,
         unique=True,
         validators=[validate_username],
@@ -55,13 +50,13 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    def __str__(self):
-        return self.email
-
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.email
 
 
 class GenreCategory(models.Model):
@@ -144,21 +139,24 @@ class ReviewComment(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
+    text = models.TextField('Текст')
 
     class Meta:
         ordering = ('pub_date',)
         abstract = True
 
+    def __str__(self):
+        return self.text
+
 
 class Review(ReviewComment):
 
-    text = models.TextField(verbose_name='Текст отзыва')
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
     )
     score = models.PositiveSmallIntegerField(
-        verbose_name='Оценка',
+        'Оценка',
         validators=[
             MinValueValidator(1, message='Оценка не может быть меньше 1!'),
             MaxValueValidator(10, message='Оценка не может быть больше 10!')
@@ -176,9 +174,6 @@ class Review(ReviewComment):
         ]
         default_related_name = 'reviews'
 
-    def __str__(self):
-        return self.text[:15]
-
 
 class Comments(ReviewComment):
 
@@ -186,12 +181,8 @@ class Comments(ReviewComment):
         Review,
         on_delete=models.CASCADE,
     )
-    text = models.TextField(verbose_name='Текст комментария')
 
     class Meta(ReviewComment.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         default_related_name = 'comments'
-
-    def __str__(self):
-        return self.text

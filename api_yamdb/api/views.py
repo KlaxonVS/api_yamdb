@@ -7,7 +7,6 @@ from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitlesFilter
 from .mixins import GenreCategoryViewSetMixin
@@ -19,6 +18,7 @@ from .serializers import (AdminUserEditSerializer, CategorySerializer,
                           GetTitleSerializer, GetTokenSerializer,
                           ReviewSerializer, UserSignupSerializer)
 from .utils import send_confirmation_code
+from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['post'])
@@ -52,10 +52,10 @@ def get_token(request):
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
-        username=serializer.validated_data["username"]
+        username=serializer.validated_data.get('username')
     )
     if default_token_generator.check_token(
-            user, serializer.validated_data["confirmation_code"]
+            user, serializer.validated_data.get('confirmation_code')
     ):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)},
@@ -138,8 +138,7 @@ class GenreViewSet(GenreCategoryViewSetMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        Avg('reviews__score')).order_by('name')
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
 
@@ -148,3 +147,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
+
+    def filter_queryset(self, queryset):
+        queryset = super(TitleViewSet, self).filter_queryset(queryset)
+        return queryset.order_by('name')

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -12,10 +13,24 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
         и её редактирования."""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())],
+        max_length=settings.EMAIL_M_LENGTH,
     )
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all()),
                     validate_username],
+        max_length=settings.USERNAME_M_LENGTH,
+    )
+    first_name = serializers.CharField(
+        max_length=settings.FIRST_LAST_M_LENGTH,
+        required=False
+    )
+    last_name = serializers.CharField(
+        max_length=settings.FIRST_LAST_M_LENGTH,
+        required=False
+    )
+    bio = serializers.CharField(
+        max_length=settings.BIO_M_LENGTH,
+        required=False
     )
 
     class Meta:
@@ -24,35 +39,26 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
         model = User
 
 
-class UserSignupSerializer(AdminUserEditSerializer):
-    """Сериализатор для регистрации нового пользователя, отправки им и
-    зарегистрированным администратором confirmation_code."""
-    email = serializers.EmailField()
-    username = serializers.CharField(validators=[validate_username])
-
-    class Meta:
-        fields = ('email', 'username')
-        model = User
-
-
-class GetTokenSerializer(UserSignupSerializer):
-    """Сериализатор для получения токена."""
-    confirmation_code = serializers.CharField()
-
-    class Meta:
-        fields = ('username', 'confirmation_code')
-        model = User
-
-
 class EditForUserSerializer(AdminUserEditSerializer):
     """Сериализатор для получения пользователем информации о себе
     и её редактирования."""
+    role = serializers.CharField(read_only=True)
 
-    class Meta:
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-        model = User
-        read_only_fields = ('role',)
+
+class UserSignupSerializer(serializers.Serializer):
+    """Сериализатор для регистрации нового пользователя, отправки им и
+    зарегистрированным администратором confirmation_code."""
+    email = serializers.EmailField(max_length=settings.EMAIL_M_LENGTH,)
+    username = serializers.CharField(
+        validators=[validate_username],
+        max_length=settings.USERNAME_M_LENGTH,
+    )
+
+
+class GetTokenSerializer(serializers.Serializer):
+    """Сериализатор для получения токена."""
+    confirmation_code = serializers.CharField()
+    username = serializers.CharField(max_length=settings.USERNAME_M_LENGTH,)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -142,10 +148,7 @@ class CreateUpdateTitleSerializer(serializers.ModelSerializer):
 class GetTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField(
-        source='reviews__score__avg',
-        read_only=True
-    )
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         fields = '__all__'
