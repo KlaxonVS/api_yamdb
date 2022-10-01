@@ -149,4 +149,3 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
-        
