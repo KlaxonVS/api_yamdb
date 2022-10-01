@@ -1,12 +1,13 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status, filters, mixins
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Avg
 
+from .filters import TitlesFilter
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAdminModerAuthorOrReadOnly)
 from .serializers import (CommentSerializer, UserSignupSerializer,
@@ -15,7 +16,6 @@ from .serializers import (CommentSerializer, UserSignupSerializer,
                           CreateUpdateTitleSerializer, GetTitleSerializer,
                           CategorySerializer, GenreSerializer)
 from .utils import send_confirmation_code
-from .filters import TitlesFilter
 from reviews.models import User, Review, Title, Genre, Category
 
 
@@ -146,8 +146,7 @@ class GenreViewSet(GenreCategoryViewSetMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        Avg('reviews__score')).order_by('name')
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
 
@@ -156,3 +155,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
+
+    def filter_queryset(self, queryset):
+        queryset = super(TitleViewSet, self).filter_queryset(queryset)
+        return queryset.order_by('name')
