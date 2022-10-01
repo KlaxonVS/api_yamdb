@@ -141,6 +141,7 @@ class GenreViewSet(GenreCategoryViewSetMixin):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
     filterset_class = TitlesFilter
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
     ordering_fields = ('name',)
@@ -150,4 +151,4 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
-
+        
