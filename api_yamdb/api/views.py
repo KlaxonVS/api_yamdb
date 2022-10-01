@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Review, Title, User
 
-
 from .filters import TitlesFilter
 from .mixins import GenreCategoryViewSetMixin
 from .permissions import (IsAdmin, IsAdminModerAuthorOrReadOnly,
