@@ -143,7 +143,6 @@ class GetTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.IntegerField(
-        # Лишняя строка ?
         source='reviews__score__avg',
         read_only=True
     )

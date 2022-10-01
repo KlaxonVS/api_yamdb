@@ -2,9 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api_yamdb.settings import (EMAIL_M_LENGTH, NAME_M_LENGTH, SLUG_M_LENGTH,
-                                USERNAME_M_LENGTH)
-
+from api_yamdb import settings
 from .validators import validate_username, validate_year
 
 
@@ -33,13 +31,13 @@ class User(AbstractUser):
     )
     bio = models.TextField('Биография', null=True, blank=True)
     email = models.EmailField(
-        max_length=EMAIL_M_LENGTH,
+        max_length=settings.EMAIL_M_LENGTH,
         verbose_name='Электронная почта',
         unique=True,
     )
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=USERNAME_M_LENGTH,
+        max_length=settings.USERNAME_M_LENGTH,
         unique=True,
         validators=[validate_username],
     )
@@ -69,11 +67,11 @@ class User(AbstractUser):
 class GenreCategory(models.Model):
     name = models.CharField(
         verbose_name='Название',
-        max_length=NAME_M_LENGTH
+        max_length=settings.NAME_M_LENGTH
     )
     slug = models.SlugField(
         verbose_name='Метка',
-        max_length=SLUG_M_LENGTH,
+        max_length=settings.SLUG_M_LENGTH,
         unique=True
     )
 
