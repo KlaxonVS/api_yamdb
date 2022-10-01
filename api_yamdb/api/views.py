@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
+from .filters import TitlesFilter
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAdminModerAuthorOrReadOnly)
 from .serializers import (CommentSerializer, UserSignupSerializer,
@@ -146,8 +147,7 @@ class GenreViewSet(GenreCategoryViewSetMixin):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        Avg('reviews__score')).order_by('name')
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
 
@@ -156,3 +156,7 @@ class TitleViewSet(viewsets.ModelViewSet):
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
+
+    def filter_queryset(self, queryset):
+        queryset = super(TitleViewSet, self).filter_queryset(queryset)
+        return queryset.order_by('name')
