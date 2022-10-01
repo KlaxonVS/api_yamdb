@@ -1,10 +1,9 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.shortcuts import get_object_or_404
-from django.core.validators import MaxValueValidator, MinValueValidator
 
-from reviews.models import (Comments, User, Review, Title, Genre,
-                            Category)
+from reviews.models import Category, Comments, Genre, Review, Title, User
 from reviews.validators import validate_username
 
 
@@ -121,44 +120,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
 
 
-# class CategoryField(serializers.SlugRelatedField):
-#     def to_representation(self, value):
-#         serializer = CategorySerializer(value)
-#         return serializer.data
-#
-#
-# class GenreField(serializers.SlugRelatedField):
-#     def to_representation(self, value):
-#         serializer = GenreSerializer(value)
-#         return serializer.data
-
-
-# class TitleSerializer(serializers.ModelSerializer):
-#     rating = serializers.IntegerField(
-#         source='reviews__score__avg',
-#         read_only=True
-#     )
-#     category = CategoryField(
-#         slug_field='slug',
-#         queryset=Category.objects.all(),
-#         required=False
-#     )
-#     genre = GenreField(
-#         slug_field='slug',
-#         queryset=Genre.objects.all(),
-#         many=True
-#     )
-#
-#     class Meta:
-#         fields = (
-#             'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-#         )
-#         read_only_fields = (
-#             'id', 'genre', 'category', 'rating'
-#         )
-#         model = Title
-
-
 class CreateUpdateTitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug',
@@ -175,23 +136,24 @@ class CreateUpdateTitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def to_representation(self, instance):
-        serializer = GetTitleSerializer(instance)
-        return serializer.data
+        return GetTitleSerializer(instance).data
 
 
 class GetTitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.IntegerField(
+        # Лишняя строка ?
         source='reviews__score__avg',
         read_only=True
     )
 
     class Meta:
-        fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
-        read_only_fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
-        )
+        fields = '__all__'
         model = Title
+
+    def get_fields(self):
+        fields = super().get_fields()
+        for field in fields.values():
+            field.read_only = True
+        return fields
