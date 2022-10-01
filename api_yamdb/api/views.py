@@ -2,9 +2,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, permissions, status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -140,14 +140,12 @@ class GenreViewSet(GenreCategoryViewSetMixin):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
+    filter_backends = (filters.OrderingFilter, DjangoFilterBackend)
     filterset_class = TitlesFilter
+    ordering_fields = ('name',)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GetTitleSerializer
 
         return CreateUpdateTitleSerializer
-
-    def filter_queryset(self, queryset):
-        queryset = super(TitleViewSet, self).filter_queryset(queryset)
-        return queryset.order_by('name')
