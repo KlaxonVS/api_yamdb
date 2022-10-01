@@ -2,11 +2,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, permissions, status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from reviews.models import Category, Genre, Review, Title, User
+
 
 from .filters import TitlesFilter
 from .mixins import GenreCategoryViewSetMixin
@@ -18,7 +20,6 @@ from .serializers import (AdminUserEditSerializer, CategorySerializer,
                           GetTitleSerializer, GetTokenSerializer,
                           ReviewSerializer, UserSignupSerializer)
 from .utils import send_confirmation_code
-from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['post'])
@@ -141,6 +142,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitlesFilter
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    ordering_fields = ('name',)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -148,6 +151,3 @@ class TitleViewSet(viewsets.ModelViewSet):
 
         return CreateUpdateTitleSerializer
 
-    def filter_queryset(self, queryset):
-        queryset = super(TitleViewSet, self).filter_queryset(queryset)
-        return queryset.order_by('name')
