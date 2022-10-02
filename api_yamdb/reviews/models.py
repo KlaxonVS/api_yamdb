@@ -7,7 +7,7 @@ from .validators import validate_username, validate_year
 
 
 class User(AbstractUser):
-
+    """Модель юзера с добавлением полей роль и биография."""
     ADMIN = 'admin'
     MODER = 'moderator'
     USER = 'user'
@@ -20,7 +20,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         'Роль',
-        max_length=max((len(role[1]) for role in ROLE_CHOICES)),
+        max_length=max((len(role_en) for role_en, role_ru in ROLE_CHOICES)),
         choices=ROLE_CHOICES,
         default=USER
     )
@@ -37,6 +37,14 @@ class User(AbstractUser):
         validators=[validate_username],
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    class Meta:
+        ordering = ('username',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     @property
     def is_moderator(self):
         """Проверяет что пользователь модератор"""
@@ -47,19 +55,12 @@ class User(AbstractUser):
         """Проверяет что пользователь администратор"""
         return self.role == self.ADMIN or self.is_staff
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
-    class Meta:
-        ordering = ('username',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
     def __str__(self):
         return self.email
 
 
 class GenreCategory(models.Model):
+    """Родительская модель жанра и категории."""
     name = models.CharField(
         'Название',
         max_length=settings.NAME_M_LENGTH
@@ -79,18 +80,21 @@ class GenreCategory(models.Model):
 
 
 class Category(GenreCategory):
+    """Модель категорий произведений."""
     class Meta(GenreCategory.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(GenreCategory):
+    """Модель жанров произведений."""
     class Meta(GenreCategory.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
+    """Модель произведения."""
     name = models.TextField(
         'Название',
     )
@@ -128,6 +132,7 @@ class Title(models.Model):
 
 
 class ReviewComment(models.Model):
+    """Родительская модель отзывов и комментариев."""
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
@@ -149,6 +154,7 @@ class ReviewComment(models.Model):
 
 
 class Review(ReviewComment):
+    """Модель отзывов к произведениям."""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -175,7 +181,7 @@ class Review(ReviewComment):
 
 
 class Comments(ReviewComment):
-
+    """Модель комментариев к отзывам."""
     review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',

@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.db.models import Avg
@@ -7,7 +8,6 @@ from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitlesFilter
 from .mixins import GenreCategoryViewSetMixin
@@ -19,6 +19,7 @@ from .serializers import (AdminUserEditSerializer, CategorySerializer,
                           GetTitleSerializer, GetTokenSerializer,
                           ReviewSerializer, UserSignupSerializer)
 from .utils import send_confirmation_code
+from reviews.models import Category, Genre, Review, Title, User
 
 
 @api_view(['post'])

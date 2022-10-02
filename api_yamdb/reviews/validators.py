@@ -14,7 +14,8 @@ def validate_username(name):
             re.match(r'^[\w.@+-]+\Z', letter)
             letters.append(letter)
         raise ValidationError('username может состоять только'
-                              ' из букв, цифр и @/./+/-/_')
+                              ' из букв, цифр и @/./+/-/_\n'
+                              f'Вы использовали: {letters}')
 
 
 def validate_score_range(score):

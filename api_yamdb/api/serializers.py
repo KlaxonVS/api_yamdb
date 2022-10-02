@@ -20,18 +20,6 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
                     validate_username],
         max_length=settings.USERNAME_M_LENGTH,
     )
-    first_name = serializers.CharField(
-        max_length=settings.FIRST_LAST_M_LENGTH,
-        required=False
-    )
-    last_name = serializers.CharField(
-        max_length=settings.FIRST_LAST_M_LENGTH,
-        required=False
-    )
-    bio = serializers.CharField(
-        max_length=settings.BIO_M_LENGTH,
-        required=False
-    )
 
     class Meta:
         fields = ('username', 'email', 'first_name',
@@ -42,7 +30,9 @@ class AdminUserEditSerializer(serializers.ModelSerializer):
 class EditForUserSerializer(AdminUserEditSerializer):
     """Сериализатор для получения пользователем информации о себе
     и её редактирования."""
-    role = serializers.CharField(read_only=True)
+
+    class Meta(AdminUserEditSerializer.Meta):
+        read_only_fields = ('role',)
 
 
 class UserSignupSerializer(serializers.Serializer):
@@ -153,9 +143,4 @@ class GetTitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-
-    def get_fields(self):
-        fields = super().get_fields()
-        for field in fields.values():
-            field.read_only = True
-        return fields
+        read_only_fields = ('__all__',)
