@@ -20,7 +20,7 @@ class User(AbstractUser):
 
     role = models.CharField(
         'Роль',
-        max_length=max((len(role_en) for role_en, role_ru in ROLE_CHOICES)),
+        max_length=max(len(role_en) for role_en, role_ru in ROLE_CHOICES),
         choices=ROLE_CHOICES,
         default=USER
     )
