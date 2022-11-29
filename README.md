@@ -1,5 +1,7 @@
 ## Проект «api_YaMDb»
 ***
+### Технологии:
+``[Django, djangorestframework, simplejwt]``
 ### Соавторы:
 * [Михаил Манузин](https://github.com/klinf1)
 * [Олег Смагин](https://github.com/OrdinaryWorker)
